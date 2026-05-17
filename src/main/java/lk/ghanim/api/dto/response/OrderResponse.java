@@ -25,8 +25,14 @@ public class OrderResponse {
     private String promoCode;
     private String status;
     private String priceType;
-    private String deliveryAddress;
-    private String notes;
+    private String recipientName;
+    private String recipientPhone;
+    private String province;
+    private String district;
+    private String cityTown;
+    private String postalCode;
+    private String streetAddress;
+    private String deliveryNotes;
     private LocalDateTime createdAt;
 
     @Data
@@ -37,6 +43,7 @@ public class OrderResponse {
         private Long productId;
         private String productName;
         private String productEmoji;
+        private String productImageUrl;
         private Integer quantity;
         private BigDecimal unitPrice;
         private BigDecimal totalPrice;

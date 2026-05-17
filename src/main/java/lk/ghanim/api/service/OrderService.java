@@ -12,6 +12,7 @@ import lk.ghanim.api.repository.OrderRepository;
 import lk.ghanim.api.repository.ProductRepository;
 import lk.ghanim.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -67,6 +68,7 @@ public class OrderService {
             OrderItem item = OrderItem.builder()
                     .product(product)
                     .quantity(itemReq.getQuantity())
+                    .productImageUrl(product.getImageUrl())
                     .unitPrice(unitPrice)
                     .totalPrice(totalPrice)
                     .build();
@@ -106,8 +108,14 @@ public class OrderService {
                 .priceType(isWholesale
                         ? Order.PriceType.WHOLESALE
                         : Order.PriceType.RETAIL)
-                .deliveryAddress(request.getDeliveryAddress())
-                .notes(request.getNotes())
+                .recipientName(request.getRecipientName())
+                .recipientPhone(request.getRecipientPhone())
+                .province(request.getProvince())
+                .district(request.getDistrict())
+                .cityTown(request.getCityTown())
+                .postalCode(request.getPostalCode())
+                .streetAddress(request.getStreetAddress())
+                .deliveryNotes(request.getDeliveryNotes())
                 .build();
 
         order.setItems(items);
@@ -141,9 +149,20 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(Long id) {
+
         Order order = orderRepository.findById(id)
                 .orElseThrow( () ->
                         new ResourceNotFoundException("Order not found " + id));
+
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!isAdmin && !order.getUser().getEmail().equals(email)) {
+            throw new AccessDeniedException("You don't have access to this order");
+        }
 
         return toResponse(order);
     }
@@ -174,6 +193,7 @@ public class OrderService {
                                 .productId(item.getProduct().getId())
                                 .productName(item.getProduct().getName())
                                 .productEmoji(item.getProduct().getEmoji())
+                                .productImageUrl(item.getProductImageUrl())
                                 .quantity(item.getQuantity())
                                 .unitPrice(item.getUnitPrice())
                                 .totalPrice(item.getTotalPrice())
@@ -195,8 +215,14 @@ public class OrderService {
                 .promoCode(order.getPromoCode())
                 .status(order.getStatus().name())
                 .priceType(order.getPriceType().name())
-                .deliveryAddress(order.getDeliveryAddress())
-                .notes(order.getNotes())
+                .recipientName(order.getRecipientName())
+                .recipientPhone(order.getRecipientPhone())
+                .province(order.getProvince())
+                .district(order.getDistrict())
+                .cityTown(order.getCityTown())
+                .postalCode(order.getPostalCode())
+                .streetAddress(order.getStreetAddress())
+                .deliveryNotes(order.getDeliveryNotes())
                 .createdAt(order.getCreatedAt())
                 .build();
     }

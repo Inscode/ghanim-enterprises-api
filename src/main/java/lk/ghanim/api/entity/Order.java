@@ -54,9 +54,32 @@ public class Order {
     @Column(nullable = false)
     private PriceType priceType;
 
-    private String deliveryAddress;
+    // Replace the single deliveryAddress field with these:
 
-    private String notes;
+    @Column(nullable = false)
+    private String recipientName;
+
+    @Column(nullable = false, length = 15)
+    private String recipientPhone;
+
+    @Column(nullable = false)
+    private String province;
+
+    @Column(nullable = false)
+    private String district;
+
+    @Column(nullable = false)
+    private String cityTown;
+
+    @Column(length = 10)
+    private String postalCode;
+
+    @Column(nullable = false)
+    private String streetAddress;
+
+    private String landmark;
+
+    private String deliveryNotes;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
